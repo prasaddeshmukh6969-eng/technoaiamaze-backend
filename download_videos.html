@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Generated Videos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: white;
+        }
+        h1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .video-list {
+            margin-top: 30px;
+        }
+        .video-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .download-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .download-btn:hover {
+            opacity: 0.9;
+        }
+        .info {
+            color: #aaa;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎬 Generated Videos</h1>
+    <p>All your generated mock videos are listed below. Click to download.</p>
+
+    <div id="videoList" class="video-list">
+        <p>Loading videos...</p>
+    </div>
+
+    <script>
+        async function loadVideos() {
+            const videoList = document.getElementById('videoList');
+            
+            try {
+                // Get list of generated videos from backend
+                const response = await fetch('http://localhost:8000/api/v1/videos');
+                
+                if (!response.ok) {
+                    // Fallback: Show known videos
+                    showStaticList();
+                    return;
+                }
+                
+                const data = await response.json();
+                displayVideos(data.videos);
+                
+            } catch (error) {
+                console.error('Error loading videos:', error);
+                showStaticList();
+            }
+        }
+
+        function showStaticList() {
+            const videoList = document.getElementById('videoList');
+            videoList.innerHTML = `
+                <div class="video-item">
+                    <h3>📹 Video 1</h3>
+                    <p class="info">Job ID: 2dba6a20-f261-4606-9c96-eb12db48b4b3</p>
+                    <p class="info">First generation - Family portrait</p>
+                    <a href="http://localhost:8000/api/v1/download/2dba6a20-f261-4606-9c96-eb12db48b4b3" 
+                       class="download-btn" download>
+                        ⬇️ Download Video 1
+                    </a>
+                </div>
+                
+                <div class="video-item">
+                    <h3>📹 Video 2</h3>
+                    <p class="info">Job ID: f7719b59-0554-49c6-8f86-d22142c257d5</p>
+                    <p class="info">Second generation - Hindi text</p>
+                    <a href="http://localhost:8000/api/v1/download/f7719b59-0554-49c6-8f86-d22142c257d5" 
+                       class="download-btn" download>
+                        ⬇️ Download Video 2
+                    </a>
+                </div>
+
+                <div style="margin-top: 30px; padding: 15px; background: rgba(255,200,0,0.1); border-radius: 10px; border: 1px solid rgba(255,200,0,0.3);">
+                    <strong>💡 Tip:</strong> These are mock placeholder videos. They show "Antigravity AI" text instead of actual talking heads. 
+                    Install the full AI stack for real video generation!
+                </div>
+            `;
+        }
+
+        function displayVideos(videos) {
+            const videoList = document.getElementById('videoList');
+            
+            if (videos.length === 0) {
+                videoList.innerHTML = '<p>No videos generated yet.</p>';
+                return;
+            }
+
+            let html = '';
+            videos.forEach((video, index) => {
+                html += `
+                    <div class="video-item">
+                        <h3>📹 Video ${index + 1}</h3>
+                        <p class="info">Job ID: ${video.job_id}</p>
+                        <p class="info">Created: ${new Date(video.created_at).toLocaleString()}</p>
+                        <a href="http://localhost:8000/api/v1/download/${video.job_id}" 
+                           class="download-btn" download>
+                            ⬇️ Download Video
+                        </a>
+                    </div>
+                `;
+            });
+            
+            videoList.innerHTML = html;
+        }
+
+        // Load videos on page load
+        loadVideos();
+    </script>
+</body>
+</html>
